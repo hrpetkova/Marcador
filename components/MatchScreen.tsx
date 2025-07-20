@@ -1,84 +1,112 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+// MatchScreen.tsx
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Chronometer } from './Chronometer';
+import { useNavigation } from '@react-navigation/native';
 
-export default function TeamSetup({ onNext }) {
-  const [teamAName, setTeamAName] = useState("");
-  const [teamBName, setTeamBName] = useState("");
-  const [teamAColors, setTeamAColors] = useState({ shirt: "", shorts: "" });
-  const [teamBColors, setTeamBColors] = useState({ shirt: "", shorts: "" });
+export default function MatchScreen() {
+  const [scoreTeamA, setScoreTeamA] = useState(0);
+  const [scoreTeamB, setScoreTeamB] = useState(0);
+  const navigation = useNavigation();
 
-  const handleSubmit = () => {
-    if (teamAName && teamBName) {
-      onNext({
-        teamA: { name: teamAName, colors: teamAColors },
-        teamB: { name: teamBName, colors: teamBColors },
-      });
-    } else {
-      alert("Introduce el nombre de ambos equipos");
-    }
+  const incrementScore = (team: 'A' | 'B') => {
+    if (team === 'A') setScoreTeamA(scoreTeamA + 1);
+    else setScoreTeamB(scoreTeamB + 1);
+  };
+
+  const decrementScore = (team: 'A' | 'B') => {
+    if (team === 'A' && scoreTeamA > 0) setScoreTeamA(scoreTeamA - 1);
+    else if (team === 'B' && scoreTeamB > 0) setScoreTeamB(scoreTeamB - 1);
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-xl font-bold">Configuración de Equipos</h1>
+    <View style={styles.container}>
+      <Text style={styles.title}>Marcador</Text>
+      <View style={styles.scoreContainer}>
+        <View style={[styles.teamSection, { backgroundColor: '#d1e7dd' }]}>  
+          <Text style={styles.teamLabel}>Equipo A</Text>
+          <Text style={styles.score}>{scoreTeamA}</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity onPress={() => incrementScore('A')} style={styles.button}><Text>+1</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => decrementScore('A')} style={styles.button}><Text>-1</Text></TouchableOpacity>
+          </View>
+        </View>
 
-      <div>
-        <h2 className="font-semibold">Equipo A</h2>
-        <input
-          className="w-full p-2 border rounded"
-          placeholder="Nombre del equipo A"
-          value={teamAName}
-          onChange={(e) => setTeamAName(e.target.value)}
-        />
-        <div className="flex gap-2 mt-2">
-          <input
-            className="p-2 border rounded"
-            placeholder="Color camiseta"
-            value={teamAColors.shirt}
-            onChange={(e) =>
-              setTeamAColors({ ...teamAColors, shirt: e.target.value })
-            }
-          />
-          <input
-            className="p-2 border rounded"
-            placeholder="Color pantalón"
-            value={teamAColors.shorts}
-            onChange={(e) =>
-              setTeamAColors({ ...teamAColors, shorts: e.target.value })
-            }
-          />
-        </div>
-      </div>
+        <View style={[styles.teamSection, { backgroundColor: '#f8d7da' }]}> 
+          <Text style={styles.teamLabel}>Equipo B</Text>
+          <Text style={styles.score}>{scoreTeamB}</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity onPress={() => incrementScore('B')} style={styles.button}><Text>+1</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => decrementScore('B')} style={styles.button}><Text>-1</Text></TouchableOpacity>
+          </View>
+        </View>
+      </View>
 
-      <div>
-        <h2 className="font-semibold">Equipo B</h2>
-        <input
-          className="w-full p-2 border rounded"
-          placeholder="Nombre del equipo B"
-          value={teamBName}
-          onChange={(e) => setTeamBName(e.target.value)}
-        />
-        <div className="flex gap-2 mt-2">
-          <input
-            className="p-2 border rounded"
-            placeholder="Color camiseta"
-            value={teamBColors.shirt}
-            onChange={(e) =>
-              setTeamBColors({ ...teamBColors, shirt: e.target.value })
-            }
-          />
-          <input
-            className="p-2 border rounded"
-            placeholder="Color pantalón"
-            value={teamBColors.shorts}
-            onChange={(e) =>
-              setTeamBColors({ ...teamBColors, shorts: e.target.value })
-            }
-          />
-        </div>
-      </div>
+      <Chronometer />
 
-      <Button onClick={handleSubmit}>Siguiente</Button>
-    </div>
+      <TouchableOpacity
+        style={styles.timeoutButton}
+        onPress={() => navigation.navigate('TimeoutModal')}
+      >
+        <Text style={styles.timeoutText}>Tiempo Muerto</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 40,
+  },
+  teamSection: {
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  teamLabel: {
+    fontSize: 20,
+    marginBottom: 10,
+  },
+  score: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  button: {
+    backgroundColor: '#ccc',
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 8,
+  },
+  timeoutButton: {
+    backgroundColor: '#ffc107',
+    padding: 15,
+    marginTop: 30,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  timeoutText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
