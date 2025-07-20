@@ -1,129 +1,69 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// src/components/TimeOutModal.tsx
+import React, { useEffect, useState } from 'react';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 
-const HandballTimerApp = () => {
-  const [teamAName, setTeamAName] = useState("");
-  const [teamBName, setTeamBName] = useState("");
-  const [teamAColor, setTeamAColor] = useState({ shirt: "#0000FF", shorts: "#FFFFFF" });
-  const [teamBColor, setTeamBColor] = useState({ shirt: "#FF0000", shorts: "#000000" });
+interface TimeOutModalProps {
+  visible: boolean;
+  onClose: () => void;
+  team: 'A' | 'B';
+  onEndTimeout: () => void;
+}
 
-  const [teamAPlayers, setTeamAPlayers] = useState(Array(16).fill(""));
-  const [teamBPlayers, setTeamBPlayers] = useState(Array(16).fill(""));
-  const [teamAStaff, setTeamAStaff] = useState(Array(5).fill(""));
-  const [teamBStaff, setTeamBStaff] = useState(Array(5).fill(""));
+const TimeOutModal: React.FC<TimeOutModalProps> = ({ visible, onClose, team, onEndTimeout }) => {
+  const [secondsLeft, setSecondsLeft] = useState(60);
 
-  const [scoreA, setScoreA] = useState(0);
-  const [scoreB, setScoreB] = useState(0);
-  const [selectedScorerA, setSelectedScorerA] = useState(null);
-  const [selectedScorerB, setSelectedScorerB] = useState(null);
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
 
-  const handleScore = (team) => {
-    if (team === "A") {
-      if (selectedScorerA !== null) {
-        setScoreA(scoreA + 1);
-      }
-    } else {
-      if (selectedScorerB !== null) {
-        setScoreB(scoreB + 1);
-      }
+    if (visible) {
+      setSecondsLeft(60);
+      interval = setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval!);
+            onEndTimeout(); // finaliza el tiempo muerto
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
-  };
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [visible]);
+
+  useEffect(() => {
+    if (secondsLeft === 10) {
+      // aviso 50 segundos (60 - 10)
+      console.warn('¡10 segundos restantes en el tiempo muerto!');
+      // aquí podrías reproducir un sonido o mostrar un aviso visual
+    }
+  }, [secondsLeft]);
 
   return (
-    <div className="p-4 space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <h2 className="text-xl font-bold">Equipo A</h2>
-          <Input placeholder="Nombre del equipo A" value={teamAName} onChange={(e) => setTeamAName(e.target.value)} />
-          <div className="flex items-center gap-2">
-            <label>Camiseta</label>
-            <input type="color" value={teamAColor.shirt} onChange={(e) => setTeamAColor({ ...teamAColor, shirt: e.target.value })} />
-            <label>Pantalón</label>
-            <input type="color" value={teamAColor.shorts} onChange={(e) => setTeamAColor({ ...teamAColor, shorts: e.target.value })} />
-          </div>
-          <h3 className="font-semibold mt-2">Jugadores</h3>
-          {teamAPlayers.map((p, idx) => (
-            <Input key={idx} placeholder={`Jugador ${idx + 1}`} value={p} onChange={(e) => {
-              const updated = [...teamAPlayers];
-              updated[idx] = e.target.value;
-              setTeamAPlayers(updated);
-            }} />
-          ))}
-          <h3 className="font-semibold mt-2">Responsables</h3>
-          {teamAStaff.map((s, idx) => (
-            <Input key={idx} placeholder={`Responsable ${idx + 1}`} value={s} onChange={(e) => {
-              const updated = [...teamAStaff];
-              updated[idx] = e.target.value;
-              setTeamAStaff(updated);
-            }} />
-          ))}
-        </div>
+    <Modal visible={visible} transparent animationType="slide">
+      <View style={{ flex: 1, backgroundColor: '#000000aa', justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 12, width: '80%', alignItems: 'center' }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+            Tiempo muerto del equipo {team}
+          </Text>
+          <Text style={{ fontSize: 48, marginVertical: 20 }}>{secondsLeft}</Text>
 
-        <div>
-          <h2 className="text-xl font-bold">Equipo B</h2>
-          <Input placeholder="Nombre del equipo B" value={teamBName} onChange={(e) => setTeamBName(e.target.value)} />
-          <div className="flex items-center gap-2">
-            <label>Camiseta</label>
-            <input type="color" value={teamBColor.shirt} onChange={(e) => setTeamBColor({ ...teamBColor, shirt: e.target.value })} />
-            <label>Pantalón</label>
-            <input type="color" value={teamBColor.shorts} onChange={(e) => setTeamBColor({ ...teamBColor, shorts: e.target.value })} />
-          </div>
-          <h3 className="font-semibold mt-2">Jugadores</h3>
-          {teamBPlayers.map((p, idx) => (
-            <Input key={idx} placeholder={`Jugador ${idx + 1}`} value={p} onChange={(e) => {
-              const updated = [...teamBPlayers];
-              updated[idx] = e.target.value;
-              setTeamBPlayers(updated);
-            }} />
-          ))}
-          <h3 className="font-semibold mt-2">Responsables</h3>
-          {teamBStaff.map((s, idx) => (
-            <Input key={idx} placeholder={`Responsable ${idx + 1}`} value={s} onChange={(e) => {
-              const updated = [...teamBStaff];
-              updated[idx] = e.target.value;
-              setTeamBStaff(updated);
-            }} />
-          ))}
-        </div>
-      </div>
-
-      <div className="border-t pt-4">
-        <h2 className="text-2xl font-bold text-center mb-4">Marcador</h2>
-        <div className="flex justify-around items-center text-6xl font-bold">
-          <div>
-            <div style={{ backgroundColor: teamAColor.shirt }} className="w-8 h-4 mx-auto" />
-            <div style={{ backgroundColor: teamAColor.shorts }} className="w-8 h-4 mx-auto" />
-            <div className="text-center">{teamAName || "Equipo A"}</div>
-            <div>{scoreA}</div>
-            <select onChange={(e) => setSelectedScorerA(e.target.value)}>
-              <option value="">--Jugador--</option>
-              {teamAPlayers.map((p, i) => (
-                <option key={i} value={i}>{p || `Jugador ${i + 1}`}</option>
-              ))}
-            </select>
-            <Button onClick={() => handleScore("A")}>+1 Gol</Button>
-          </div>
-
-          <div>VS</div>
-
-          <div>
-            <div style={{ backgroundColor: teamBColor.shirt }} className="w-8 h-4 mx-auto" />
-            <div style={{ backgroundColor: teamBColor.shorts }} className="w-8 h-4 mx-auto" />
-            <div className="text-center">{teamBName || "Equipo B"}</div>
-            <div>{scoreB}</div>
-            <select onChange={(e) => setSelectedScorerB(e.target.value)}>
-              <option value="">--Jugador--</option>
-              {teamBPlayers.map((p, i) => (
-                <option key={i} value={i}>{p || `Jugador ${i + 1}`}</option>
-              ))}
-            </select>
-            <Button onClick={() => handleScore("B")}>+1 Gol</Button>
-          </div>
-        </div>
-      </div>
-    </div>
+          <TouchableOpacity
+            onPress={() => {
+              onClose();
+              onEndTimeout();
+            }}
+            style={{ backgroundColor: '#e74c3c', padding: 10, borderRadius: 8 }}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Finalizar ahora</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
   );
 };
 
-export default HandballTimerApp;
+export default TimeOutModal;
