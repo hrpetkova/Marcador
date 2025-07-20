@@ -1,5 +1,3 @@
-// screens/GameSetupScreen.tsx
-
 import React, { useState } from "react";
 import {
   View,
@@ -12,7 +10,7 @@ import {
 } from "react-native";
 import { categories } from "../data/categories";
 import { Team, Category } from "../models/types";
-import ColorPicker from "react-native-wheel-color-picker"; // puedes reemplazarlo si lo prefieres
+import ColorPicker from "react-native-wheel-color-picker";
 
 const defaultPlayer = (n: number) => ({
   number: n,
@@ -87,7 +85,6 @@ export default function GameSetupScreen({ navigation }: any) {
           setTeamA({ ...teamA, isSelection: !teamA.isSelection })
         }
       />
-
       <Text style={styles.label}>Color Camiseta</Text>
       <ColorPicker
         color={teamA.shirtColor}
@@ -96,7 +93,6 @@ export default function GameSetupScreen({ navigation }: any) {
         }
         style={{ height: 100 }}
       />
-
       <Text style={styles.label}>Color Pantalón</Text>
       <ColorPicker
         color={teamA.shortsColor}
@@ -106,7 +102,65 @@ export default function GameSetupScreen({ navigation }: any) {
         style={{ height: 100 }}
       />
 
-      {/* Repeat for TEAM B */}
+      {/* JUGADORES EQUIPO A */}
+      <Text style={styles.subHeading}>Jugadores Equipo A</Text>
+      {teamA.players.map((player, index) => (
+        <View key={index} style={styles.playerRow}>
+          <Text style={styles.playerNumber}>{player.number}</Text>
+          <TextInput
+            style={styles.playerInput}
+            placeholder="Nombre"
+            value={player.name}
+            onChangeText={(text) => {
+              const updatedPlayers = [...teamA.players];
+              updatedPlayers[index].name = text;
+              setTeamA({ ...teamA, players: updatedPlayers });
+            }}
+          />
+          <TouchableOpacity
+            style={[
+              styles.goalkeeperButton,
+              player.isGoalkeeper && styles.goalkeeperActive
+            ]}
+            onPress={() => {
+              const updatedPlayers = [...teamA.players];
+              updatedPlayers[index].isGoalkeeper = !player.isGoalkeeper;
+              setTeamA({ ...teamA, players: updatedPlayers });
+            }}
+          >
+            <Text>🤾‍♂️</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      {/* RESPONSABLES EQUIPO A */}
+      <Text style={styles.subHeading}>Responsables Equipo A</Text>
+      {teamA.staff.map((member, index) => (
+        <View key={index} style={styles.staffRow}>
+          <TextInput
+            style={styles.staffInput}
+            placeholder="Nombre"
+            value={member.name}
+            onChangeText={(text) => {
+              const updatedStaff = [...teamA.staff];
+              updatedStaff[index].name = text;
+              setTeamA({ ...teamA, staff: updatedStaff });
+            }}
+          />
+          <TextInput
+            style={styles.staffInput}
+            placeholder="Rol (Ej: Entrenador)"
+            value={member.role}
+            onChangeText={(text) => {
+              const updatedStaff = [...teamA.staff];
+              updatedStaff[index].role = text;
+              setTeamA({ ...teamA, staff: updatedStaff });
+            }}
+          />
+        </View>
+      ))}
+
+      {/* TEAM B */}
       <Text style={styles.teamLabel}>Equipo B</Text>
       <TextInput
         style={styles.input}
@@ -121,7 +175,6 @@ export default function GameSetupScreen({ navigation }: any) {
           setTeamB({ ...teamB, isSelection: !teamB.isSelection })
         }
       />
-
       <Text style={styles.label}>Color Camiseta</Text>
       <ColorPicker
         color={teamB.shirtColor}
@@ -130,7 +183,6 @@ export default function GameSetupScreen({ navigation }: any) {
         }
         style={{ height: 100 }}
       />
-
       <Text style={styles.label}>Color Pantalón</Text>
       <ColorPicker
         color={teamB.shortsColor}
@@ -140,6 +192,64 @@ export default function GameSetupScreen({ navigation }: any) {
         style={{ height: 100 }}
       />
 
+      {/* JUGADORES EQUIPO B */}
+      <Text style={styles.subHeading}>Jugadores Equipo B</Text>
+      {teamB.players.map((player, index) => (
+        <View key={index} style={styles.playerRow}>
+          <Text style={styles.playerNumber}>{player.number}</Text>
+          <TextInput
+            style={styles.playerInput}
+            placeholder="Nombre"
+            value={player.name}
+            onChangeText={(text) => {
+              const updatedPlayers = [...teamB.players];
+              updatedPlayers[index].name = text;
+              setTeamB({ ...teamB, players: updatedPlayers });
+            }}
+          />
+          <TouchableOpacity
+            style={[
+              styles.goalkeeperButton,
+              player.isGoalkeeper && styles.goalkeeperActive
+            ]}
+            onPress={() => {
+              const updatedPlayers = [...teamB.players];
+              updatedPlayers[index].isGoalkeeper = !player.isGoalkeeper;
+              setTeamB({ ...teamB, players: updatedPlayers });
+            }}
+          >
+            <Text>🤾‍♂️</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+
+      {/* RESPONSABLES EQUIPO B */}
+      <Text style={styles.subHeading}>Responsables Equipo B</Text>
+      {teamB.staff.map((member, index) => (
+        <View key={index} style={styles.staffRow}>
+          <TextInput
+            style={styles.staffInput}
+            placeholder="Nombre"
+            value={member.name}
+            onChangeText={(text) => {
+              const updatedStaff = [...teamB.staff];
+              updatedStaff[index].name = text;
+              setTeamB({ ...teamB, staff: updatedStaff });
+            }}
+          />
+          <TextInput
+            style={styles.staffInput}
+            placeholder="Rol (Ej: Médico)"
+            value={member.role}
+            onChangeText={(text) => {
+              const updatedStaff = [...teamB.staff];
+              updatedStaff[index].role = text;
+              setTeamB({ ...teamB, staff: updatedStaff });
+            }}
+          />
+        </View>
+      ))}
+
       {/* CATEGORY SELECT */}
       <Text style={styles.label}>Categoría</Text>
       {categories.map((cat) => (
@@ -147,7 +257,7 @@ export default function GameSetupScreen({ navigation }: any) {
           key={cat.name}
           onPress={() => {
             setSelectedCategory(cat);
-            setPhase(""); // reset
+            setPhase("");
           }}
           style={[
             styles.categoryButton,
@@ -193,7 +303,7 @@ const styles = StyleSheet.create({
     borderRadius: 5
   },
   label: { marginTop: 10, fontWeight: "bold" },
-  teamLabel: { fontSize: 18, marginTop: 20 },
+  teamLabel: { fontSize: 18, marginTop: 20, fontWeight: "bold" },
   categoryButton: {
     backgroundColor: "#eee",
     padding: 10,
@@ -207,7 +317,46 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 2
   },
-  phaseSelected: {
-    backgroundColor: "#add8e6"
+  phaseSelected: { backgroundColor: "#add8e6" },
+  subHeading: {
+    marginTop: 20,
+    fontSize: 16,
+    fontWeight: "bold"
+  },
+  playerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 5
+  },
+  playerNumber: {
+    width: 25,
+    fontWeight: "bold"
+  },
+  playerInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginHorizontal: 5,
+    padding: 5,
+    borderRadius: 5
+  },
+  goalkeeperButton: {
+    backgroundColor: "#eee",
+    padding: 5,
+    borderRadius: 5
+  },
+  goalkeeperActive: {
+    backgroundColor: "#99f"
+  },
+  staffRow: {
+    flexDirection: "column",
+    marginVertical: 5
+  },
+  staffInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 5,
+    borderRadius: 5,
+    marginBottom: 4
   }
 });
